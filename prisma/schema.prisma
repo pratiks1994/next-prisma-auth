@@ -16,6 +16,16 @@ model User {
   email String @unique
   password String 
   role Role @default(USER)
+  tasks Task[]
+}
+
+model Task {
+  id Int @id @unique @default(autoincrement())
+  task String
+  status Boolean @default(false)
+  userId Int 
+  user User @relation(fields: [userId], references: [id])
+  createdAt DateTime @default(now())
 }
 
 enum Role {
