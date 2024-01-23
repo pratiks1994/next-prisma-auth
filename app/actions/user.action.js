@@ -57,6 +57,13 @@ export const getUser = async () => {
             where: {
                 email: data.email,
             },
+            include:{
+                tasks:{
+                    orderBy:{
+                        id:"desc"
+                    }
+                }
+            }
         });
 
         if (!user){

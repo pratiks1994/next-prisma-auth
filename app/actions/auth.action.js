@@ -11,7 +11,7 @@ export const authenticateUser = async (data) => {
     try {
         const email = data.email.trim();
         const password = data.password.trim();
-        console.log(data, "login");
+        // console.log(data, "login");
 
         if (!email) throw new HttpException(400, "invalid credentials");
         if (!password) throw new HttpException(400, "invalid credentials");

@@ -1,6 +1,14 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+::-webkit-scrollbar {
+	width: 5px;
+}
+::-webkit-scrollbar-thumb {
+	background: rgba(180, 180, 180, 0.307);
+	border-radius: 10px;
+}
  
 @layer base {
   :root {

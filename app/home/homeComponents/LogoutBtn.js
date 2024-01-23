@@ -7,7 +7,7 @@ function LogoutBtn() {
      const { pending  } = useFormStatus()
 
   return (
-    <Button type="submit" disabled={ pending }>{ pending  ? "logging out...":"Logout"}</Button>
+    <Button type="submit" variant="ghost" disabled={ pending }>{ pending  ? "logging out...":"Logout"}</Button>
   )
 }
 
