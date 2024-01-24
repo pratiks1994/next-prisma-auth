@@ -2,6 +2,8 @@
 import { cookies } from "next/headers";
 import HttpException from "../api/error/error.modal";
 import * as jose from "jose";
+import { handleActionError } from "../utils/actionErrorhandler";
+import { revalidatePath } from "next/cache";
 
 export const jwtVarify = async () => {
     const token = cookies().get("token")?.value || "";
@@ -30,8 +32,7 @@ export async function verifyAuth(request) {
     }
 }
 
-export const signAndSetJwt = async (payload) =>{
-    
+export const signAndSetJwt = async (payload) => {
     const secret = new TextEncoder().encode(process.env.SECRET);
 
     const token = await new jose.SignJWT(payload)
@@ -43,4 +44,18 @@ export const signAndSetJwt = async (payload) =>{
         .sign(secret);
 
     cookies().set("token", token, { httpOnly: token, expiresIn: 60 * 60 * 24 * 1000 });
-}
+};
+
+export const handleJWTVerification = async (callback) => {
+    try {
+        const data = await jwtVarify();
+        if (!data) throw new HttpException(403, "Unauthorized");
+
+        return await callback(data);
+    } catch (error) {
+        console.error(error);
+        return handleActionError(error);
+    } finally {
+        revalidatePath("/home");
+    }
+};

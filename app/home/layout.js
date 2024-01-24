@@ -1,3 +1,4 @@
+import FilterContextProvide from "../actions/context/filterContext";
 import HomeNav from "./homeComponents/HomeNav";
 
 export const metadata = {
@@ -8,8 +9,10 @@ export const metadata = {
 export default function layout({ children }) {
     return (
         <div className="flex flex-col w-full h-dvh">
+            <FilterContextProvide>
             <HomeNav />
             {children}
+            </FilterContextProvide>
         </div>
     );
 }

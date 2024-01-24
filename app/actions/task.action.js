@@ -2,74 +2,51 @@
 
 import prisma from "@/prisma/prisma-client";
 import HttpException from "../api/error/error.modal";
-import { jwtVarify } from "../helper/authenticate";
-import { revalidatePath } from "next/cache";
+import { handleJWTVerification, jwtVarify, varifyMiddleware } from "../helper/authenticate";
+import { updateTaskQueryBuilder } from "../helper/queryHelper";
 
-export const addTask = async (req) => {
-    const task = req.task.trim();
-
-    try {
-        const data = await jwtVarify();
-        if (!data) throw new HttpException(403, "unauthorize");
-        console.log(data);
-
+export const addTask = async (req) =>
+    handleJWTVerification(async (data) => {
+        const task = req.task.trim();
+        if (!task) throw HttpException(400, "no task");
         const newTask = await prisma.task.create({
             data: {
                 task: task,
                 userId: data.id,
             },
         });
+        return { error: false, message: "Task created", status: 200, data: task };
+    });
 
-        return { error: false, message: "task created", status: 200, data: task };
-    } catch (error) {
-        console.log(error);
-        return handleActionError(error);
-    } finally {
-        revalidatePath("/home");
-    }
-};
-
-export const updateTaskStatus = async (data) => {
-    console.log(data);
-    const { id, status } = data;
-    try {
-        const data = await jwtVarify();
-        if (!data) throw new HttpException(403, "unauthorize");
-        // console.log(data);
-
+export const updateTaskStatus = async (req) =>
+    handleJWTVerification(async (data) => {
         await prisma.task.update({
             where: {
-                id: id,
+                id: req.id,
             },
             data: {
-                status: status,
+                status: req.status,
             },
         });
         return { error: false, message: "task updated", status: 200, data: null };
-    } catch (error) {
-        console.log(error);
-        return handleActionError(error);
-    } finally {
-        revalidatePath("/home");
-    }
-};
+    });
 
-export const deleteTask = async (id) =>{
-    try {
-        const data = await jwtVarify();
-        if (!data) throw new HttpException(403, "unauthorize");
-
+    
+export const deleteTask = async (id) =>
+    handleJWTVerification(async (data) => {
         await prisma.task.delete({
-            where:{
-                id:id
-            }
-        })
-        
+            where: {
+                id: id,
+            },
+        });
         return { error: false, message: "task Deleted", status: 200, data: null };
-    } catch (error) {
-        console.log(error)
-        return handleActionError(error);
-    }finally{
-        revalidatePath("/home");
-    }
-} 
+    });
+
+
+export const updateTask = async (req) =>
+    handleJWTVerification(async (data) => {
+        const query = updateTaskQueryBuilder(req);
+        await prisma.task.update(query);
+
+        return { error: false, message: "task updated", status: 200, data: null };
+    });

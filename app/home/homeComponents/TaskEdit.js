@@ -11,8 +11,12 @@ import { deleteTask } from "@/app/actions/task.action";
 import { toast } from "sonner";
 import EditDilog from "./EditDilog";
 import { Dialog, DialogTrigger } from "@radix-ui/react-dialog";
+import { useState } from "react";
 
-function TaskEdit({ task, updateStatus }) {
+function TaskEdit({ task, handleUpdateTask }) {
+    const [open, setOpen] = useState(false);
+    const [showDilog, setShowdilog] = useState(false);
+
     const handleDelete = async (id) => {
         const res = await deleteTask(id);
         if (res.status === 200 && !res.error) {
@@ -23,17 +27,24 @@ function TaskEdit({ task, updateStatus }) {
     };
 
     return (
-        <Dialog>
-            <DropdownMenu>
-                <DropdownMenuTrigger>
-                    <DotsVerticalIcon className="text-sm" />
+        <Dialog open={showDilog} onOpenChange={setShowdilog}>
+            <DropdownMenu open={open} onOpenChange={setOpen}>
+                <DropdownMenuTrigger asChild className="grow py-1 w-full h-full">
+                    <DotsVerticalIcon className="text-xs" aria-expanded={open} />
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="start">
-                    <DropdownMenuItem>
-                        <DialogTrigger className="w-full text-start">Edit</DialogTrigger>
-                    </DropdownMenuItem>
+                    <DialogTrigger
+                        onSelect={() => {
+                            setOpen(false);
+                            setShowdilog(true);
+                        }}
+                        className="w-full"
+                    >
+                        <DropdownMenuItem>Edit</DropdownMenuItem>
+                    </DialogTrigger>
+
                     {task.status && (
-                        <DropdownMenuItem onClick={() => updateStatus({ id: task.id, status: false })}>Mark Active</DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => handleUpdateTask({id:task.id, status: false })}>Mark Active</DropdownMenuItem>
                     )}
                     <DropdownMenuSeparator />
                     <DropdownMenuItem
@@ -46,7 +57,7 @@ function TaskEdit({ task, updateStatus }) {
                     </DropdownMenuItem>
                 </DropdownMenuContent>
             </DropdownMenu>
-            <EditDilog task={task}/>
+            <EditDilog task={task} showDilog={showDilog} setShowdilog={setShowdilog} handleUpdateTask={handleUpdateTask} />
         </Dialog>
     );
 }

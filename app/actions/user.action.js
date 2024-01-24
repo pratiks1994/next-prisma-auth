@@ -3,8 +3,7 @@ import prisma from "@/prisma/prisma-client";
 import HttpException from "../api/error/error.modal";
 import { handleActionError } from "../utils/actionErrorhandler";
 import * as bcrypt from "bcryptjs";
-import { jwtVarify } from "../helper/authenticate";
-
+import { handleJWTVerification, jwtVarify } from "../helper/authenticate";
 
 export const createUser = async (user) => {
     try {
@@ -57,17 +56,18 @@ export const getUser = async () => {
             where: {
                 email: data.email,
             },
-            include:{
-                tasks:{
-                    orderBy:{
-                        id:"desc"
-                    }
-                }
-            }
+            include: {
+                tasks: {
+                    orderBy: {
+                        id: "desc",
+                    },
+                },
+            },
         });
 
-        if (!user){
-             throw new HttpException(404, "no user found");}
+        if (!user) {
+            throw new HttpException(404, "no user found");
+        }
         return user;
     } catch (error) {
         console.log(error);
